@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Becca's Tokyo Thanksgiving</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one centered column. Header, then picks, then a summary with the shopping list, then a short timeline. */
+:root {
+  --bg: #faf8f5;
+  --surface: #ffffff;
+  --ink: #222222;
+  --muted: #6b6b6b;
+  --line: #e6e1da;
+  --accent: #c2502a;
+  --accent-soft: #fbeee8;
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161616; --surface: #1f1f1f; --ink: #ececec; --muted: #9a9a9a; --line: #333333;
+    --accent: #f08457; --accent-soft: #33241d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161616; --surface: #1f1f1f; --ink: #ececec; --muted: #9a9a9a; --line: #333333;
+  --accent: #f08457; --accent-soft: #33241d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 15px; line-height: 1.5; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 680px; margin: 0 auto; padding-block: 32px 56px; display: grid; gap: 36px; }
+h1 { font-size: 30px; margin: 0; line-height: 1.2; text-wrap: balance; }
+h2 { font-size: 18px; margin: 0 0 12px; }
+p { margin: 0; color: var(--muted); }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.intro { display: grid; gap: 16px; }
+.intro .sub { color: var(--muted); }
+.settings { display: flex; gap: 12px; flex-wrap: wrap; }
+.field { display: grid; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+.field label, .field .lbl { font-size: 12px; color: var(--muted); }
+.field input[type=date] { border: 0; background: transparent; font-weight: 600; padding: 0; }
+.stepper { display: flex; align-items: center; gap: 12px; }
+.stepper button { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--bg); cursor: pointer; font-size: 16px; }
+.stepper output { font-weight: 600; min-width: 2ch; text-align: center; font-variant-numeric: tabular-nums; }
+.days { font-size: 13px; color: var(--accent); font-weight: 600; }
+
+.course + .course { margin-top: 22px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 7px 14px; cursor: pointer; font-size: 14px; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.chip .meta { color: var(--muted); font-size: 12px; margin-left: 4px; }
+.chip[aria-pressed="true"] .meta { color: rgba(255,255,255,.85); }
+.hint { font-size: 13px; margin-top: 8px; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+.summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+.summary div { display: grid; gap: 2px; }
+.summary span { font-size: 12px; color: var(--muted); }
+.summary b { font-size: 15px; font-variant-numeric: tabular-nums; }
+.note { font-size: 13px; padding: 10px 12px; border-radius: 8px; background: var(--accent-soft); color: var(--ink); }
+.note:empty { display: none; }
+@media (max-width: 560px) { .summary { grid-template-columns: 1fr; } }
+
+.store { padding: 12px 0; border-top: 1px solid var(--line); }
+.store:first-child { border-top: 0; padding-top: 0; }
+.store h3 { margin: 0 0 4px; font-size: 14px; }
+.store h3 small { color: var(--muted); font-weight: 400; margin-left: 6px; }
+.store ul { margin: 0; padding-left: 18px; font-size: 14px; }
+.actions { margin-top: 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.btn { border: 0; background: var(--ink); color: var(--bg); font-weight: 600; padding: 9px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+.btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+#copied { font-size: 13px; color: var(--muted); }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.steps li { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px; font-size: 14px; }
+.steps b { font-weight: 600; }
+@media (max-width: 560px) { .steps li { grid-template-columns: 1fr; gap: 2px; } }
+footer { font-size: 12.5px; color: var(--muted); }
+</style>
+
+<main>
+  <header class="intro">
+    <h1>Becca's Tokyo Thanksgiving</h1>
+    <p class="sub">Pick the dishes. The page adds up the oven time, the bird size and a shopping list by store.</p>
+    <div class="settings">
+      <div class="field">
+        <label for="date">Dinner date</label>
+        <input type="date" id="date">
+        <span class="days" id="days"></span>
+      </div>
+      <div class="field">
+        <span class="lbl" id="gl">Guests</span>
+        <div class="stepper" role="group" aria-labelledby="gl">
+          <button type="button" id="gm" aria-label="Fewer guests">−</button>
+          <output id="guests">8</output>
+          <button type="button" id="gp" aria-label="More guests">+</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="picks"></section>
+
+  <section class="card">
+    <div class="summary">
+      <div><span>Bird</span><b id="bird">—</b></div>
+      <div><span>Oven time on the day</span><b id="oven">—</b></div>
+      <div><span>Dishes</span><b id="count">—</b></div>
+    </div>
+    <div class="note" id="note"></div>
+  </section>
+
+  <section>
+    <h2>Shopping list</h2>
+    <div class="card" id="shop"></div>
+    <div class="actions">
+      <button class="btn" id="copy" type="button">Copy list</button>
+      <button class="btn ghost" id="reset" type="button">Reset picks</button>
+      <span id="copied" hidden>Copied</span>
+    </div>
+    <textarea id="copybox" hidden readonly style="width:100%;margin-top:12px;min-height:140px;font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--ink)"></textarea>
+  </section>
+
+  <section>
+    <h2>Timeline</h2>
+    <ol class="steps" id="timeline"></ol>
+  </section>
+
+  <footer>Your picks and date are saved in this browser only. Store stock and order deadlines change every year, so check ahead.</footer>
+</main>
+
+<script>
+const STORES = {
+  costco:  { name: "Costco", where: "Kanazawa-Hakkei / Kawasaki" },
+  azabu:   { name: "National Azabu", where: "Hiroo, Tokyo" },
+  union:   { name: "Motomachi Union", where: "Motomachi, Yokohama" },
+  kaldi:   { name: "Kaldi Coffee Farm", where: "Most stations" },
+  meatguy: { name: "The Meat Guy", where: "Online, delivered" },
+  ikea:    { name: "IKEA", where: "Kohoku / Tachikawa" },
+  super:   { name: "Local supermarket", where: "Any; Seijo Ishii for herbs" },
+  baking:  { name: "TOMIZ / Daiso", where: "Most stations" },
+  bakery:  { name: "Bakery or patisserie", where: "Nearby" },
+  hotel:   { name: "Hotel takeaway", where: "Tokyo / Yokohama hotels" },
+  liquor:  { name: "Liquor shop", where: "Anywhere" },
+};
+
+const COURSES = [
+  { id: "main", name: "Main" },
+  { id: "side", name: "Sides" },
+  { id: "dessert", name: "Dessert" },
+  { id: "drink", name: "Drinks" },
+];
+
+// oven = minutes in the oven on the day; ahead = can be made the day before
+const DISHES = [
+  { id: "turkey", c: "main", name: "Whole turkey", oven: 210, bird: "turkey", buy: [["Whole frozen turkey", "costco"], ["Butter, herbs", "super"], ["Roasting pan", "baking"]] },
+  { id: "breast", c: "main", name: "Turkey breast & legs", oven: 100, bird: "parts", buy: [["Breast roast + legs", "meatguy"], ["Butter, garlic, herbs", "super"]] },
+  { id: "chicken", c: "main", name: "Spatchcock chicken", oven: 55, bird: "chicken", buy: [["Whole chickens", "costco"], ["Lemon, garlic, rosemary", "super"]] },
+  { id: "hotelbird", c: "main", name: "Cooked turkey from a hotel", oven: 25, bird: "hotel", buy: [["Cooked turkey dinner set", "hotel"]] },
+
+  { id: "mash", c: "side", name: "Mashed potatoes", oven: 0, buy: [["Danshaku potatoes", "super"], ["Butter, cream", "super"]] },
+  { id: "gravy", c: "side", name: "Gravy", oven: 0, buy: [["Consommé cubes, flour", "super"]] },
+  { id: "stuffing", c: "side", name: "Shokupan stuffing", oven: 40, ahead: true, buy: [["Shokupan, celery, onion", "super"], ["Fresh sage & thyme", "super"]] },
+  { id: "cran", c: "side", name: "Cranberry sauce", oven: 0, ahead: true, buy: [["Frozen cranberries", "costco"]] },
+  { id: "sweet", c: "side", name: "Satsumaimo casserole", oven: 30, ahead: true, buy: [["Beni-haruka satsumaimo", "super"], ["Marshmallows", "super"]] },
+  { id: "beans", c: "side", name: "Green beans", oven: 25, ahead: true, buy: [["Ingen beans, shimeji, cream", "super"], ["Crispy fried onions", "ikea"]] },
+  { id: "kaki", c: "side", name: "Persimmon salad", oven: 0, buy: [["Kaki, mizuna, walnuts", "super"]] },
+  { id: "rolls", c: "side", name: "Bakery rolls", oven: 5, buy: [["Dinner rolls", "bakery"]] },
+
+  { id: "pumpkin", c: "dessert", name: "Kabocha pie", oven: 55, ahead: true, buy: [["Kabocha, eggs, cream", "super"], ["Pie tin, cinnamon", "baking"]] },
+  { id: "apple", c: "dessert", name: "Kōgyoku apple pie", oven: 50, ahead: true, buy: [["Kōgyoku apples", "super"], ["Flour, butter", "super"]] },
+  { id: "pecan", c: "dessert", name: "Maple pecan pie", oven: 55, ahead: true, buy: [["Pecans", "costco"], ["Maple syrup", "kaldi"]] },
+
+  { id: "cider", c: "drink", name: "Hot spiced cider", oven: 0, buy: [["Aomori apple juice, cinnamon", "super"]] },
+  { id: "beaujolais", c: "drink", name: "Beaujolais Nouveau", oven: 0, buy: [["Beaujolais Nouveau", "liquor"]] },
+];
+
+const DEFAULT_PICKS = ["turkey", "mash", "gravy", "stuffing", "cran", "sweet", "beans", "kaki", "rolls", "pumpkin", "cider"];
+const OVEN_BUDGET = 270;
+const $ = (id) => document.getElementById(id);
+
+let state = { picks: DEFAULT_PICKS.slice(), guests: 8, date: "2026-11-26" };
+try { const s = JSON.parse(localStorage.getItem("tg-plan") || "null"); if (s) state = Object.assign(state, s); } catch (e) {}
+function save() { try { localStorage.setItem("tg-plan", JSON.stringify(state)); } catch (e) {} }
+
+function renderPicks() {
+  $("picks").innerHTML = COURSES.map(c => `
+    <div class="course">
+      <h2>${c.name}</h2>
+      <div class="chips">
+        ${DISHES.filter(d => d.c === c.id).map(d => `
+          <button type="button" class="chip" data-id="${d.id}" aria-pressed="false">
+            ${d.name}<span class="meta">${d.oven ? d.oven + " min" : "no oven"}</span>
+          </button>`).join("")}
+      </div>
+    </div>`).join("");
+  $("picks").querySelectorAll(".chip").forEach(el => el.addEventListener("click", () => {
+    const id = el.dataset.id;
+    const d = DISHES.find(x => x.id === id);
+    if (state.picks.includes(id)) state.picks = state.picks.filter(p => p !== id);
+    else {
+      // one main at a time
+      if (d.c === "main") state.picks = state.picks.filter(p => DISHES.find(x => x.id === p).c !== "main");
+      state.picks.push(id);
+    }
+    save(); update();
+  }));
+}
+
+function birdText(main, g) {
+  if (!main) return "None picked";
+  if (main.bird === "turkey") return `${Math.max(3, Math.round(g * 0.6 * 2) / 2)} kg`;
+  if (main.bird === "parts") return `${(g * 0.35).toFixed(1)} kg`;
+  if (main.bird === "chicken") { const n = Math.ceil(g / 4); return `${n} chicken${n > 1 ? "s" : ""}`; }
+  return `Dinner for ${g}`;
+}
+
+function shoppingList(picked) {
+  const byStore = {};
+  picked.forEach(d => d.buy.forEach(([item, s]) => (byStore[s] = byStore[s] || []).push(item)));
+  return Object.keys(STORES).filter(s => byStore[s]).map(s => ({ store: STORES[s], items: byStore[s] }));
+}
+
+function update() {
+  document.querySelectorAll(".chip").forEach(el => el.setAttribute("aria-pressed", state.picks.includes(el.dataset.id)));
+  const picked = DISHES.filter(d => state.picks.includes(d.id));
+  const main = picked.find(d => d.c === "main");
+  const g = state.guests;
+  $("guests").textContent = g;
+  $("count").textContent = picked.length;
+  $("bird").textContent = birdText(main, g);
+
+  // make-ahead dishes only need about 10 min on the day
+  const dayOven = picked.reduce((t, d) => t + (d.ahead ? (d.oven ? 10 : 0) : d.oven), 0);
+  $("oven").textContent = `${Math.floor(dayOven / 60)}h ${dayOven % 60}m`;
+
+  const notes = [];
+  if (main && main.bird === "turkey" && g > 7) notes.push("A turkey this size probably won't fit a small Japanese oven. Try turkey breast & legs.");
+  if (dayOven > OVEN_BUDGET) notes.push("That's more oven time than one oven can handle. Move a dish to the stovetop or bake the make-ahead ones the day before.");
+  $("note").textContent = notes.join(" ");
+
+  const list = shoppingList(picked);
+  $("shop").innerHTML = list.length ? list.map(({ store, items }) => `
+    <div class="store"><h3>${store.name}<small>${store.where}</small></h3>
+    <ul>${items.map(i => `<li>${i}</li>`).join("")}</ul></div>`).join("") : `<p>Pick some dishes to see the list.</p>`;
+
+  renderTimeline(picked, main);
+}
+
+function renderTimeline(picked, main) {
+  const dinner = new Date(state.date + "T00:00:00");
+  if (isNaN(dinner)) return;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const days = Math.round((dinner - today) / 86400000);
+  $("days").textContent = days > 1 ? `${days} days to go` : days === 1 ? "Tomorrow" : days === 0 ? "Today" : "Done";
+
+  const turkey = main && main.bird === "turkey";
+  const thaw = turkey ? Math.max(2, Math.ceil(g(state) * 0.6 / 2)) : 0;
+  const steps = [
+    { off: -14, text: main && main.bird === "hotel" ? "Reserve the hotel turkey dinner." : turkey ? "Order or buy the turkey." : "Plan your Costco run." },
+    { off: -7, text: "Import-shop run for pantry items. Buy butter early." },
+    thaw ? { off: -thaw, text: `Move the frozen turkey to the fridge to thaw (${thaw} days).` } : null,
+    { off: -1, text: "Bake the pies and make the stuffing base. Chop all veg. Set the table." },
+    { off: 0, text: turkey ? "Turkey in around 1:30 pm for a 6 pm dinner. Make mash and gravy at the end." : main ? "Reheat the main and make mash and gravy." : "Make the sides in the order they're needed." },
+  ].filter(Boolean);
+
+  $("timeline").innerHTML = steps.map(s => {
+    const d = new Date(dinner); d.setDate(d.getDate() + s.off);
+    const label = s.off === 0 ? "Dinner day" : `${-s.off} day${s.off === -1 ? "" : "s"} before`;
+    return `<li><span><b>${d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</b><br><span style="color:var(--muted)">${label}</span></span><span>${s.text}</span></li>`;
+  }).join("");
+}
+function g(s) { return s.guests; }
+
+$("gm").onclick = () => { state.guests = Math.max(2, state.guests - 1); save(); update(); };
+$("gp").onclick = () => { state.guests = Math.min(20, state.guests + 1); save(); update(); };
+$("date").value = state.date;
+$("date").onchange = (e) => { if (e.target.value) { state.date = e.target.value; save(); update(); } };
+$("reset").onclick = () => { state.picks = DEFAULT_PICKS.slice(); save(); update(); };
+$("copy").onclick = () => {
+  const picked = DISHES.filter(d => state.picks.includes(d.id));
+  const text = shoppingList(picked).map(({ store, items }) => `${store.name}\n` + items.map(i => `- ${i}`).join("\n")).join("\n\n");
+  const p = navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(text) : Promise.reject();
+  p.then(() => { $("copied").hidden = false; setTimeout(() => $("copied").hidden = true, 1800); })
+   .catch(() => { $("copybox").value = text; $("copybox").hidden = false; $("copybox").select(); });
+};
+
+renderPicks(); update();
+</script>
+</body></html>
